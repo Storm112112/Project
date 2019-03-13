@@ -64,9 +64,6 @@ train = optimizer.minimize(cross_entropy)
 #Intializeing Variables
 init = tf.global_variables_initializer()
 
-#Saving the model
-saver = tf.train.Saver()
-
 #Session
 steps = 5000
 with tf.Session() as sess:
@@ -91,5 +88,4 @@ with tf.Session() as sess:
 
             print(sess.run(acc,feed_dict={x:mnist.test.images,y_true:mnist.test.labels,hold_prob:1.0}))
             print('\n')
-        saver.save(sess,'models/MINIST_with_CNN.ckpt')
 }
