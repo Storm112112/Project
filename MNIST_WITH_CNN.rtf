@@ -44,6 +44,8 @@ y_true = tf.placeholder(tf.float32,shape=[None,10])
 x_image = tf.reshape(x,[-1,28,28,1])
 convo_1 = convolutional_layer(x_image,shape=[6,6,1,32])
 convo_1_pooling = max_pool_2by2(convo_1)
+convo_2 = convolutional_layer(convo_1_pooling,shape=[6,6,32,64])
+convo_2_pooling = max_pool_2by2(convo_2)
 convo_2_flat = tf.reshape(convo_2_pooling,[-1,7*7*64])
 full_layer_one = tf.nn.relu(normal_full_layer(convo_2_flat,1024))
 
@@ -67,20 +69,27 @@ saver = tf.train.Saver()
 
 #Session
 steps = 5000
-with tf.Session() as sess:    
+with tf.Session() as sess:
+    
     sess.run(init)
+    
     for i in range(steps):
         
-        batch_x , batch_y = mnist.train.next_batch(50)        
-        sess.run(train,feed_dict=\{x:batch_x,y_true:batch_y,hold_prob:0.5\})
-               
-        if i%100 == 0:            
-            print('Currently on step \{\}'.format(i))
-            print('Accuracy is:')
-            matches = tf.equal(tf.argmax(y_pred,1),tf.argmax(y_true,1))
-            acc = tf.reduce_mean(tf.cast(matches,tf.float32))
-            print(sess.run(acc,feed_dict=\{x:mnist.test.images,y_true:mnist.test.labels,hold_prob:1.0\}))
-            print('\\n')
+        batch_x , batch_y = mnist.train.next_batch(50)
+        
+        sess.run(train,feed_dict={x:batch_x,y_true:batch_y,hold_prob:0.5})
+        
+        # PRINT OUT A MESSAGE EVERY 100 STEPS
+        if i%100 == 0:
             
-    saver.save(sess,'models/MINIST_with_CNN.ckpt')
+            print('Currently on step {}'.format(i))
+            print('Accuracy is:')
+            # Test the Train Model
+            matches = tf.equal(tf.argmax(y_pred,1),tf.argmax(y_true,1))
+
+            acc = tf.reduce_mean(tf.cast(matches,tf.float32))
+
+            print(sess.run(acc,feed_dict={x:mnist.test.images,y_true:mnist.test.labels,hold_prob:1.0}))
+            print('\n')
+        saver.save(sess,'models/MINIST_with_CNN.ckpt')
 }
